@@ -1,7 +1,7 @@
 <?php
 
 class AuthDB
-{
+ {
     private PDOStatement $statementReadSession;
     private PDOStatement $statementReadUser;
     private PDOStatement $statementReadUserFromEmail;
@@ -14,8 +14,9 @@ class AuthDB
     private PDOStatement $statementCheckLoginStatus;
     private PDOStatement $statementUpdateUser;
 
-    public function __construct(private PDO $pdo)
+    function __construct(private PDO $pdo)
     {
+        
         $this->statementReadSession = $pdo->prepare('SELECT * from session WHERE id=:id');
         $this->statementReadUser =  $pdo->prepare('SELECT * FROM user WHERE id_user=:id_user');
         $this->statementReadUserFromEmail = $pdo->prepare('SELECT * FROM user WHERE email=:email');
@@ -33,8 +34,7 @@ class AuthDB
         $this->statementUpdateUser = $this->pdo->prepare("UPDATE user SET is_loggedin = :is_loggedin WHERE id_user = :id_user ");
     }
 
-
-    public function login(int $userId)
+    function login(int $userId)
     {
         $sessionId = bin2hex(random_bytes(32));
         $this->statementCreateSession->bindValue(':userid', $userId);
@@ -49,33 +49,30 @@ class AuthDB
         return;
     }
 
-
-    public function setLastLogin(int $userId)
+    function setLastLogin(int $userId)
     {
         $this->statementSetLastLogin->bindParam(':id_user', $userId, PDO::PARAM_INT);
         $this->statementSetLastLogin->execute();
         return;
     }
 
-
-    public function register(array $user): void
+    function register(array $user):void
     {
-        $hashedPassword = password_hash($user['password'], PASSWORD_ARGON2ID);
-        $this->statementRegister->bindValue(':username', $user['username']);
-        $this->statementRegister->bindValue(':email', $user['email']);
-        $this->statementRegister->bindValue(':password', $hashedPassword);
+   
+        $hashedPassword = password_hash($user['password'],PASSWORD_ARGON2ID);
+        $this->statementRegister->bindValue(':username',$user['username']);
+        $this->statementRegister->bindValue(':email',$user['email']);
+        $this->statementRegister->bindValue(':password',$hashedPassword);
         $this->statementRegister->execute();
         $userId = $this->pdo->lastInsertId();
         $this->login($userId);
-
+        
         $this->statementRegister->execute();
 
         return;
     }
 
-
-    public function userIsInGroup($user_id, $group_id)
-    {
+    function userIsInGroup($user_id, $group_id) {
         $this->statementReadUserGroup->bindValue(':id_user', $user_id);
         $this->statementReadUserGroup->bindValue(':id_group', $group_id);
         $this->statementReadUserGroup->execute();
@@ -83,66 +80,59 @@ class AuthDB
         return $count > 0;
     }
 
-
-    public function updateLoginStatus($user_id, $is_loggedin)
-    {
+    function updateLoginStatus($user_id, $is_loggedin) {
         $this->statementUpdateLoginStatus->bindValue(':id_user', $user_id);
         $this->statementUpdateLoginStatus->bindValue(':is_loggedin', $is_loggedin);
         $this->statementUpdateLoginStatus->execute();
     }
 
-
-    public function checkLoginStatus($user_id)
-    {
+    function checkLoginStatus($user_id) {
         $this->statementCheckLoginStatus->bindValue(':user_id', $user_id);
         $this->statementCheckLoginStatus->execute();
         return $this->statementCheckLoginStatus->fetch()['is_loggedin'];
     }
 
-
-    public function isLoggedin(): array | false
+    function isLoggedin(): array | false
     {
         $sessionId = $_COOKIE['session'] ?? '';
         $signature = $_COOKIE['signature'] ?? '';
         if ($sessionId && $signature) {
             $hash = hash_hmac('sha256', $sessionId, '4cd30a3e9bd36ae867730f712e15b4d29d0473916d5d61e8425346f277c63cf9');
-            if (hash_equals($hash, $signature)) {
+                if (hash_equals($hash, $signature)) {
                 $this->statementReadSession->bindValue(':id', $sessionId);
                 $this->statementReadSession->execute();
                 $session =  $this->statementReadSession->fetch();
-                if ($session === TRUE) {
-                    $this->statementReadUser->bindParam(':id_user', $session['userid'], PDO::PARAM_INT);
-                    $this->statementReadUser->execute();
+                if ($session) {
+                    $this->statementReadUser->bindParam(':id_user', $session['userid'], PDO::PARAM_INT);                    $this->statementReadUser->execute();
                     $user = $this->statementReadUser->fetch();
-                    if ($user['is_loggedin'] === 1)
-                        return $user;
+                    if($user['is_loggedin'] === 1)
+                    return $user;
                 }
+              }
             }
-        }
         return $user ?? false;
-    }
+  }
 
 
-    public function logout(string $sessionId)
+    function logout(string $sessionId, $user)
     {
         $currentUser = $this->isLoggedin();
         $this->statementUpdateUser->bindValue(':is_loggedin', 0);
         $this->statementUpdateUser->bindValue(':id_user', $currentUser['id_user']);
         $this->statementUpdateUser->execute();
-
+        
         $this->statementDeleteSession->bindValue(':id', $sessionId);
         $this->statementDeleteSession->execute();
-
+        
         setcookie('session', '', time() - 1);
         return;
     }
 
-
-    public function getUserFromEmail(string $email)
+    function getUserFromEmail(string $email)
     {
-        $this->statementReadUserFromEmail->bindValue(':email', $email);
-        $this->statementReadUserFromEmail->execute();
-        return $this->statementReadUserFromEmail->fetch();
+      $this->statementReadUserFromEmail->bindValue(':email', $email);
+      $this->statementReadUserFromEmail->execute();
+      return $this->statementReadUserFromEmail->fetch();
     }
 }
 
