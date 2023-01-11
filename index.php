@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__.'/database/database.php');
+require_once __DIR__ . '/database/database.php';
 $authDB = require_once './database/security.php';
 
 
@@ -25,7 +25,7 @@ Login : mikaidoumbo_lVh35
 Password : ck2jCWN4i8g7
 Db name : mikaidoumbo_lVh35
 
-*******************************************************************************/
+ *******************************************************************************/
 const ERROR_REQUIRED = 'Veuillez renseigner ce champ';
 const ERROR_PROFIL_NOT_EXISTING = "L'utilisateur et/ou le mot de passe est incorrect";
 const ERROR_PASSWORD_MISMATCH = 'Le mot de passe n\'est pas valide';
@@ -39,32 +39,32 @@ $errors = [
     'group' => ''
 ];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = filter_input_array(INPUT_POST, [
         'email' => FILTER_SANITIZE_EMAIL,
     ]);
     $email = $input['email'] ?? '';
     $password = $_POST['password'] ?? '';
-        
+
     $user = $authDB->getUserFromEmail($email) ?? '';
-    
-    if (!$email) {
+
+    if ($email === FALSE) {
         $errors['email'] = ERROR_REQUIRED;
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = ERROR_EMAIL_INVALID;
-    } elseif ($user === false && $email != ''){
+    } else if ($user === false && $email != '') {
         $errors['email'] = ERROR_EMAIL_UNKOWN;
     }
 
-    if (!$password) {
+    if ($password === FALSE) {
         $errors['password'] = ERROR_REQUIRED;
-    } elseif (mb_strlen($password) < 3) {
+    } else if (mb_strlen($password) < 3) {
         $errors['password'] = ERROR_PASSWORD_TOO_SHORT;
-    }       
+    }
 
-    if($user) {
+    if ($user === TRUE) {
         $isMember = $authDB->userIsInGroup($user['id_user'], 2) ?? '';
-        if(!$isMember){
+        if ($isMember === FALSE) {
             $errors['group'] = ERROR_GROUP_MEMBERSHIP;
         }
 
@@ -83,32 +83,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="fr">
-  <?php  require_once 'includes/head.php'; ?>
-	<body>
-    <?php  require_once 'includes/navbar.php'; ?>
-		<div class="container-sm w-25 mt-5 px-4">
-			<h1>Identification</h1>
-			<form method="post" action="index.php">
-  				<div class="mb-3">
-					<label for="email" class="form-label">Email / login</label>
-					<input type="text" class="form-control" name="email" id="email" placeholder="Email / login" />
-					<?php if ($errors['email']) : ?>
-                        <p class="text-danger"><?= $errors['email'] ?></p>
-                    <?php endif; ?>				
-                </div>
-				<div class="mb-3">
-					<label for="password" class="form-label">Mot de passe</label>
-					<input type="password" class="form-control" name="password" id="password" placeholder="mot de passe" />
-					<?php if ($errors['password']) : ?>
-                        <p class="text-danger"><?= $errors['password'] ?></p>
-                    <?php endif; ?>	
-				</div>
-				<input type="submit" class="btn btn-primary" id="submit" value="Connexion" />
-                <?php if ($errors['group']) : ?>
-                    <p class="text-danger"><?= $errors['group'] ?></p>
-                <?php endif; ?>				
-			</form>
-		</div>
-	</body>
-</html>
+<?php require_once 'includes/head.php'; ?>
 
+<body>
+    <?php require_once 'includes/navbar.php'; ?>
+    <div class="container-sm w-25 mt-5 px-4">
+        <h1>Identification</h1>
+        <form method="post" action="index.php">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email / login</label>
+                <input type="text" class="form-control" name="email" id="email" placeholder="Email / login" />
+                <?php if ($errors['email']) : ?>
+                    <p class="text-danger"><?= $errors['email'] ?></p>
+                <?php endif; ?>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Mot de passe</label>
+                <input type="password" class="form-control" name="password" id="password" placeholder="mot de passe" />
+                <?php if ($errors['password']) : ?>
+                    <p class="text-danger"><?= $errors['password'] ?></p>
+                <?php endif; ?>
+            </div>
+            <input type="submit" class="btn btn-primary" id="submit" value="Connexion" />
+            <?php if ($errors['group']) : ?>
+                <p class="text-danger"><?= $errors['group'] ?></p>
+            <?php endif; ?>
+        </form>
+    </div>
+</body>
+
+</html>
