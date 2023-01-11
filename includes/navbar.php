@@ -1,5 +1,5 @@
 <?php
-  $currentUser = $currentUser ?? false;
+$currentUser = $currentUser ?? false;
 ?>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -8,24 +8,24 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <?php if ($currentUser === TRUE): ?>
+      <?php if ($currentUser) : ?>
         <li class="nav-item active">
           <a class="nav-link" href="logout.php">Deconnexion</a>
         </li>
         <li class="nav-item active">
           <a class="nav-link" href="main.php">Phrase mal orthographiée</a>
         </li>
-        <?php else: ?>
-          <?php if (isset($_SERVER['SCRIPT_NAME']) && $_SERVER['SCRIPT_NAME'] === '/index.php'): ?>
+      <?php else : ?>
+        <?php if (isset($_SERVER['SCRIPT_NAME']) && $_SERVER['SCRIPT_NAME'] === '/index.php') : ?>
           <li class="nav-item active">
             <a class="nav-link" href="register.php">Inscription</a>
           </li>
-          <?php endif; ?>
-          <?php if(isset($_SERVER['SCRIPT_NAME']) && $_SERVER['SCRIPT_NAME'] === '/register.php'): ?>
-              <li class="nav-item active">
+        <?php endif; ?>
+        <?php if (isset($_SERVER['SCRIPT_NAME']) && $_SERVER['SCRIPT_NAME'] === '/register.php') : ?>
+          <li class="nav-item active">
             <a class="nav-link" href="index.php">Connexion</a>
           </li>
-          <?php endif; ?>
+        <?php endif; ?>
       <?php endif; ?>
     </ul>
   </div>

@@ -25,6 +25,12 @@ Login : mikaidoumbo_lVh35
 Password : ck2jCWN4i8g7
 Db name : mikaidoumbo_lVh35
 
+ ********************************************************************************
+
+Information pour la connexion des utilisateurs
+
+mot de passe : test
+
  *******************************************************************************/
 const ERROR_REQUIRED = 'Veuillez renseigner ce champ';
 const ERROR_PROFIL_NOT_EXISTING = "L'utilisateur et/ou le mot de passe est incorrect";
@@ -32,7 +38,7 @@ const ERROR_PASSWORD_MISMATCH = 'Le mot de passe n\'est pas valide';
 const ERROR_EMAIL_INVALID = 'L\'email n\'est pas valide';
 const ERROR_EMAIL_UNKOWN = 'L\'email n\'est pas enregistrée';
 const ERROR_PASSWORD_TOO_SHORT = 'Le mot de passe est trop court';
-const ERROR_GROUP_MEMBERSHIP = 'Vous ne faites pas parti du groupe 2, vous ne pourrez pas acceder à la phrase mal orthographiée';
+const ERROR_GROUP_MEMBERSHIP = 'Désolé, vous ne faites pas parti du groupe 2, vous ne pouvez pas vous connecter';
 $errors = [
     'email' => '',
     'password' => '',
@@ -74,7 +80,6 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') 
     }
 
     if (empty(array_filter($errors, fn ($e) => $e !== ''))) {
-        //var_dump($user);die;
         $authDB->login($user['id_user']);
         $authDB->setLastLogin($user['id_user']);
         header('Location: main.php');
