@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/database/database.php';
-$authDB = include_once './database/security.php';
+$authDB = require_once './database/security.php';
 
 const ERROR_REQUIRED = 'Veuillez renseigner ce champ';
 const ERROR_username_TOO_SHORT = 'Le pseudo doit faire au moins 3 caractères';

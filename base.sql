@@ -12,14 +12,16 @@ CREATE TABLE `user` (
   `email` varchar(45) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `last_login` datetime DEFAULT NULL,
-  PRIMARY KEY (`id_user`)
+  PRIMARY KEY (`id_user`),
+  `is_loggedin` TINYINT(1)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-INSERT INTO `user` (`username`, `email`, `password`, `last_login`) 
-VALUES ('testuser1', 'testuser1@example.com', 'hashedpassword', '2022-01-01 12:00:00'),
-       ('testuser2', 'testuser2@example.com', 'hashedpassword', '2022-01-01 12:00:00')
-       ('testuser3', 'testuser3@example.com', 'hashedpassword', '2022-01-01 12:00:00')
-       ;
+
+INSERT INTO `user` (`id_user`, `username`, `email`, `password`, `last_login`, `is_loggedin`)
+ VALUES ('1', 'user1', 'user1@hotmail.fr', '$argon2id$v=19$m=65536,t=4,p=1$dzlMNS9uMzdFUnA2ZGRJMA$6q2/3eHVo4lvOaJdJyomhkyD8ADO1fK+68VFvvA5ujw', NULL, '0'),
+ ('2', 'user2', 'user2@hotmail.fr', '$argon2id$v=19$m=65536,t=4,p=1$dzlMNS9uMzdFUnA2ZGRJMA$6q2/3eHVo4lvOaJdJyomhkyD8ADO1fK+68VFvvA5ujw', NULL, '0'),
+('3', 'user3', 'user3@hotmail.fr', '$argon2id$v=19$m=65536,t=4,p=1$dzlMNS9uMzdFUnA2ZGRJMA$6q2/3eHVo4lvOaJdJyomhkyD8ADO1fK+68VFvvA5ujw', NULL, '0')
+;
 
 CREATE TABLE `user_group` (
   `id_user` int(11) NOT NULL,
@@ -27,26 +29,19 @@ CREATE TABLE `user_group` (
   PRIMARY KEY (`id_user`,`id_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `user_group` VALUES (1,2);
+INSERT INTO `user_group` (`id_user`, `id_group`) VALUES ('1', '1'), ('2', '2'), ('3', '3');
+CREATE TABLE `user_group` (
+  `id_user` int(11) NOT NULL,
+  `id_group` int(11) NOT NULL,
+  PRIMARY KEY (`id_user`,`id_group`),
+  FOREIGN KEY (`id_user`) REFERENCES `user`(`id_user`),
+  FOREIGN KEY (`id_group`) REFERENCES `groups`(`id_group`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `user_group` (`id_user`, `id_group`) VALUES ('1', '1'), ('2', '2'), ('3', '3');
 
 CREATE TABLE `session` (
   `id` char(64) NOT NULL,
-  `userid` int(11) NOT NULL
+  `userid` int(11) NOT NULL,
+  FOREIGN KEY (`userid`) REFERENCES `user`(`id_user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-INSERT INTO user_group (id_user, id_group)
-SELECT u.id_user, g.id_group
-FROM user u
-JOIN groups g ON u.id_user = 1 AND g.id_group = 2;
-
-ALTER TABLE `user_group`
-ADD FOREIGN KEY (`id_user`)
-REFERENCES `user`(`id_user`),
-ADD FOREIGN KEY (`id_group`)
-REFERENCES `groups`(`id_group`);
-
-ALTER TABLE user ADD is_loggedin TINYINT(1);
-
-
-

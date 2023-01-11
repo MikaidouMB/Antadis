@@ -62,7 +62,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') 
         $errors['password'] = ERROR_PASSWORD_TOO_SHORT;
     }
 
-    if ($user === TRUE) {
+    if ($user) {
         $isMember = $authDB->userIsInGroup($user['id_user'], 2) ?? '';
         if ($isMember === FALSE) {
             $errors['group'] = ERROR_GROUP_MEMBERSHIP;
@@ -74,6 +74,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') 
     }
 
     if (empty(array_filter($errors, fn ($e) => $e !== ''))) {
+        //var_dump($user);die;
         $authDB->login($user['id_user']);
         $authDB->setLastLogin($user['id_user']);
         header('Location: main.php');
